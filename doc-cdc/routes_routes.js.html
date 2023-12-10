@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/routes.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/routes.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module */
+
+/**
+ * @file
+ *
+ * Summary.
+ * &lt;p>CDC router.&lt;/p>
+ *
+ * {@link https://vercel.com/guides/using-express-with-vercel Vercel}
+ * seems to require a /api folder with an index.js file in it to work.
+ * Static files, such as .css and .html, lie in /public folder.
+ *
+ * &lt;p>Therefore, it loads files directly from /public or /api, e.g.,&lt;/p>
+ * &lt;ul>
+ *   &lt;li>{@link https://cdc-express.vercel.app/}, &lt;/li>
+ *   &lt;li>{@link https://cdc-express.vercel.app/api/cgi?np=10&amp;tax=0&amp;pv=450&amp;pp=500}, &lt;/li>
+ *   &lt;li>{@link https://cdc-express.vercel.app/favicon.ico} or &lt;/li>
+ *   &lt;li>{@link https://cdc-express.vercel.app/cd.css}.&lt;/li>
+ * &lt;/ul>
+ *
+ * &lt;p>However, running locally, it would be&lt;/p>
+ * &lt;ul>
+ *   &lt;li>{@link http://localhost:3000/api/cdc},&lt;/li>
+ *   &lt;li>{@link http://localhost:3000/api/cgi?np=10&amp;tax=0&amp;pv=450&amp;pp=500},&lt;/li>
+ *   &lt;li>{@link http://localhost:3000/api/favicon.ico} or&lt;/li>
+ *   &lt;li>{@link http://localhost:3000/api/cd.css}.&lt;/li>
+ * &lt;/ul>
+ *
+ * @requires module:rational
+ * @requires express
+ *
+ * @author Paulo Roma
+ * @since 01/11/2023
+ * @see &lt;a href="../routes/routes.js">source&lt;/a>
+ * @see &lt;a href="https://cdc-express.vercel.app">link&lt;/a>
+ * @see https://expressjs.com/en/guide/routing.html#express-router
+ */
+
+"use strict";
+
+const rational = require("../public/rational.cjs");
+const express = require("express");
+/**
+ * @var {router} router Express router.
+ * @see https://expressjs.com/en/4x/api.html#router
+ */
+const router = express.Router();
+
+// for POST
+router.use(express.json());
+router.use(express.urlencoded({ extended: true }));
+
+/**
+ * Middleware functions are functions that have access to the request object (req),
+ * the response object (res), and the next function in the application’s request-response cycle.
+ *
+ * &lt;p>The next function is a function in the Express router which, when invoked,
+ * executes the middleware succeeding the current middleware.&lt;/p>
+ *
+ * @callback middleware
+ * @param {Object} req HTTP request argument to the middleware function, called "req" by convention.
+ * @param {Object} res HTTP response argument to the middleware function, called "res" by convention.
+ * @param {Object} next Callback argument to the middleware function, called "next" by convention.
+ * @see https://expressjs.com/en/guide/writing-middleware.html
+ */
+
+/**
+ * Returns an HTML page with the CDC calculation results.
+ *
+ * @param {Array&lt;Number>} arr
+ *  [parcelas, taxa, preço à vista, preço a prazo, valor a voltar, meses a voltar].
+ * @param {Boolean} prt whether print output.
+ * @returns {String} HTML code.
+ */
+function createHTML(arr, prt = false) {
+  let [np, t, pv, pp, pb, nb] = arr;
+  t *= 0.01;
+
+  let pmt = pp / np;
+  let cf = 0;
+  let i = 0;
+  let ti = 0;
+  let message = "";
+  let dp = rational.getDownPayment();
+
+  try {
+    if (t === 0) {
+      if (pmt >= pv) {
+        throw new Error(
+          `Prestação (\$${pmt.toFixed(2)}) é maior do que o empréstimo`
+        );
+      }
+      [ti, i] = rational.getInterest(pp, pv, np);
+      t = ti * 0.01;
+    }
+    cf = rational.CF(t, np);
+    pmt = cf * pv;
+    // there is no sense in a montly payment greater than the loan...
+    if (pmt >= pv) {
+      throw new Error("Prestação é maior do que o empréstimo");
+    }
+  } catch (e) {
+    message += e.message;
+  } finally {
+    if (dp) {
+      np -= 1; // uma prestação a menos
+      pmt /= 1 + t; // diminui a prestação
+      pv -= pmt; // preço à vista menos a entrada
+      cf = pmt / pv; // recalculate cf
+    }
+  }
+
+  let ptb = rational.priceTable(np, pv, t, pmt);
+  let hpt = rational.htmlPriceTable(ptb);
+
+  if (pb == 0 &amp;&amp; nb > 0) {
+    pb = pmt * nb;
+  }
+
+  return `&lt;html>
+  &lt;head>
+      &lt;title>CDC - Crédito Direto ao Consumidor (nodejs)&lt;/title>
+      &lt;link rel="stylesheet" href="/cd.css">
+  &lt;/head>
+  &lt;body style="background-image: url('/IMAGEM/stone/yell_roc.jpg')">
+    &lt;div id="greenBox" class="rectangle">
+      &lt;h4>Parcelamento: ${dp ? "1+" : ""}${np} meses&lt;/h4>
+      &lt;h4>Taxa: ${(100 * t).toFixed(2)}% ao mês = ${(
+    ((1 + t) ** 12 - 1) *
+    100.0
+  ).toFixed(2)}% ao ano&lt;/h4>
+      &lt;h4>Valor Financiado: \$${pv.toFixed(2)}&lt;/h4>
+      &lt;h4>Valor Final: \$${pp.toFixed(2)}&lt;/h4>
+      &lt;h4>Valor a Voltar: \$${pb.toFixed(2)}&lt;/h4>
+      &lt;h4>Meses a Voltar: ${nb}&lt;/h4>
+      &lt;h4>Entrada: ${dp}&lt;/h4>
+    &lt;/div>
+
+    &lt;div id="blueBox" class="rectangle">
+      &lt;h2>&lt;mark>${message}&lt;/mark>&lt;/h2>
+      &lt;h4>Coeficiente de Financiamento: ${cf.toFixed(6)}&lt;/h4>
+      &lt;h4>Prestação: ${cf.toFixed(6)} * \$${pv.toFixed(2)}= \$${pmt.toFixed(
+    2
+  )} ao mês&lt;/h4>
+      &lt;h4>Valor Pago com Juros: \$${ptb.slice(-1)[0][1].toFixed(2)}&lt;/h4>
+      &lt;h4>Taxa Real (${i} iterações): ${ti.toFixed(4)}% ao mês&lt;/h4>
+      &lt;h4>Valor Corrigido: \$${
+        nb > 0 ? rational.presentValue(pb, nb, t, false)[1].toFixed(2) : 0
+      }&lt;/h4>
+    &lt;/div>
+
+    &lt;div id="redBox" class="rectangle">
+      &lt;h4>${hpt}&lt;/h4>
+    &lt;/div>
+    &lt;script>
+      ${prt ? "print()" : ""};
+    &lt;/script>
+  &lt;/body>
+  &lt;/html>`;
+}
+
+/**
+ * Route displaying CDC calculation results.
+ * @name post/api
+ * @function
+ * @memberof module:routes/routes
+ * @inner
+ * @param {String} path - path for which the middleware function is invoked.
+ * @param {middleware} callback - a middleware function.
+ */
+router.post("/", (req, res) => {
+  let arr = [
+    +req.body.np,
+    +req.body.tax,
+    +req.body.pv,
+    +req.body.pp,
+    +req.body.pb,
+    +req.body.nb,
+  ];
+  let dp = typeof req.body.dp !== "undefined";
+  let prt = typeof req.body.pdf !== "undefined";
+  rational.setDownPayment(dp);
+  res.send(createHTML(arr, prt));
+});
+
+/**
+ * Route displaying CDC calculation results.
+ * @name get/api
+ * @function
+ * @memberof module:routes/routes
+ * @inner
+ * @param {String} path - path for which the middleware function is invoked.
+ * @param {middleware} callback - a middleware function.
+ */
+router.get("/", (req, res) => {
+  let arr = [
+    +req.query.np,
+    +req.query.tax,
+    +req.query.pv,
+    +req.query.pp,
+    +req.query.pb,
+    +req.query.nb,
+  ];
+  let dp = typeof req.query.dp !== "undefined";
+  let prt = typeof req.query.pdf !== "undefined";
+  rational.setDownPayment(dp);
+  res.send(createHTML(arr, prt));
+});
+
+/**
+ * Route displaying CDC rational discount.
+ * @name get/api/cgi
+ * @function
+ * @memberof module:routes/routes
+ * @inner
+ * @param {String} path - path for which the middleware function is invoked.
+ * @param {middleware} callback - a middleware function.
+ */
+router.get("/cgi", (req, res) => {
+  let arr = [+req.query.np, +req.query.tax, +req.query.pv, +req.query.pp];
+  let [np, t, pv, pp] = arr;
+  let dp = typeof req.query.dp !== "undefined";
+  let prt = typeof req.query.pdf !== "undefined";
+  rational.setDownPayment(dp);
+  let result = rational.rational_discount(np, t * 0.01, pp, pv, true);
+  res.send(`&lt;html>
+    &lt;head>
+        &lt;title>CDC - Crédito Direto ao Consumidor (nodejs)&lt;/title>
+        &lt;link rel="stylesheet" href="/cd.css">
+        &lt;style>
+            body {
+                background-color: #f0f0f2;
+                background-image: url("/IMAGEM/stone/yell_roc.jpg");
+                margin: 0;
+                padding: 1em;
+            }
+        &lt;/style>
+    &lt;/head>
+    &lt;body>
+      &lt;div id="redBox" class="rectangle">
+        &lt;pre>
+        &lt;code>
+          &lt;p>${result}&lt;/p>
+        &lt;/code>
+        &lt;/pre>
+      &lt;/div>
+      &lt;script>
+        ${prt ? "print()" : ""};
+      &lt;/script>
+    &lt;/body>
+    &lt;/html>`);
+});
+
+/**
+ * Route serving CDC main form.
+ * @name get/api/cdc
+ * @function
+ * @memberof module:routes/routes
+ * @inner
+ * @param {String} path - path for which the middleware function is invoked.
+ * @param {middleware} callback - a middleware function.
+ */
+router.all("/cdc", (req, res) => {
+  res.sendFile("cdc.html", { root: "public" });
+});
+
+/**
+ * Route displaying favicon.ico.
+ * @name get/api/favicon
+ * @function
+ * @memberof module:routes/routes
+ * @inner
+ * @param {String} path - path for which the middleware function is invoked.
+ * @param {middleware} callback - a middleware function.
+ */
+router.get("/favicon.ico", (req, res) => {
+  res.sendFile("favicon.ico", { root: "public" });
+});
+
+/**
+ * Route for sending the style sheet.
+ * @name get/api/cd.css
+ * @function
+ * @memberof module:routes/routes
+ * @inner
+ * @param {String} path - path for which the middleware function is invoked.
+ * @param {middleware} callback - a middleware function.
+ */
+router.get("/cd.css", (req, res) => {
+  res.sendFile("cd.css", { root: "public" });
+});
+
+module.exports = router;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-rational.html">rational</a></li><li><a href="module-routes_routes.html">routes/routes</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Fri Nov 24 2023 17:07:51 GMT-0300 (Brasilia Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
