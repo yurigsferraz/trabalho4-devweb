@@ -21,7 +21,7 @@
 $vercel = true;
 
 // Importa o arquivo de rotas
-require_once('routes/routes.php');
+require_once('../routes/routes.php');
 
 // Configura o ambiente
 $port = $_SERVER['PORT'] ?? 3000;
