@@ -571,9 +571,16 @@ function cdcCLI($argv = [])
         'precision' => 4,
     ];
 
+    // Certifique-se de que o namespace do Symfony\Component\Console\Application está devidamente importado.
+    use Symfony\Component\Console\Application;
+    use Symfony\Component\Console\Input\ArgvInput;
+
+    // Substitua $console->run(); por $console->run(new ArgvInput());
     $mod_getopt = require __DIR__ . '/vendor/autoload.php';
-    $console = new Symfony\Component\Console\Application();
-    $console->run();
+    $console = new Application();
+    $console->run(new ArgvInput());
+
+    // Corrija o uso do namespace e classe Getopt
     $parser = new $mod_getopt\Getopt(
         [
             ['h', 'help', $mod_getopt\Getopt::NO_ARGUMENT],
@@ -586,6 +593,7 @@ function cdcCLI($argv = [])
         ],
         $argv
     );
+
 
     foreach ($parser->getOptions() as $option) {
         switch ($option[0]) {
