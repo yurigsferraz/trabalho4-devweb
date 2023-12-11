@@ -4,7 +4,7 @@
  * @see https://vercel.com/guides/using-express-with-vercel Vercel
  */
 
-require_once('rational.php');
+ require_once(__DIR__ . '/../public/rational.php');
 
 // Criação do objeto de roteamento
 $router = new Router();
