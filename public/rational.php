@@ -87,8 +87,7 @@ $crlf = "<br>";
  * Function declarations are processed before code is executed, so
  * we really can do this assignment before the function declaration.
  */
-setDownPayment.downP = false;
-
+$downPayment = false;
 /**
  * Seleciona pagamento mensal com ou sem entrada (down payment).
  * Holds a "static" property of itself to keep track
