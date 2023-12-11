@@ -1,0 +1,95 @@
+body {
+    background-color: #1e1e1e;
+    color: #fff;
+    margin: 0;
+    padding: 2em;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont,
+        "Segoe UI", "Open Sans", "Helvetica Neue", Helvetica, Arial,
+        sans-serif;
+}
+
+.box {
+    background-color: #333;
+    box-shadow: 8px 8px 6px rgba(0, 0, 0, 0.3);
+    width: 450px;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #555;
+    padding: 10px;
+    margin-left: 2px;
+}
+
+input, button {
+    margin: 10px 3px 10px 3px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    font-size: 12px;
+    padding: 5px;
+    color: #333;
+    background-color: #ddd;
+}
+
+label {
+    position: relative;
+    top: 12px;
+    width: 190px;
+    float: left;
+    color: #fff;
+}
+
+#submitButton {
+    width: 80px;
+    margin-left: 20px;
+    color: #fff;
+    background-color: #4CAF50;
+}
+
+#errorMessage, #successMessage {
+    font-size: 90% !important;
+    color: #FF6347;
+}
+
+.button {
+    font-size: 13px;
+    color: #fff;
+    background-color: #4CAF50;
+}
+
+.button:hover {
+    background-color: #45a049;
+}
+
+#draggable {
+    cursor: n-resize;
+}
+
+#cdcfieldset {
+    cursor: move;
+    border: 1px solid #555;
+    background-color: #444;
+    width: 400px;
+}
+
+legend {
+    border: 5px #4CAF50 solid;
+    margin-left: 1em;
+    background-color: #333;
+    padding: 0.2em 0.8em;
+    color: #fff;
+}
+
+.messages {
+    text-align: center;
+}
+
+p a, p a:visited {
+    font-size: larger;
+    color: #BB86FC;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #03DAC6;
+    text-decoration: none;
+    font-size: larger;
+}
