@@ -552,167 +552,167 @@ function htmlPriceTable($ptb)
  * @see https://github.com/aaronfrederick/posix-getopt
  * @see https://symfony.com/doc/current/components/console.html
  */
-function cdcCLI($argv = [])
-{
-    // number of payments.
-    $np = 0;
-    // interest rate
-    $t = 0;
-    // initial price
-    $pv = 0;
-    // final price
-    $pp = 0;
-    // debugging state.
-    $debug = false;
-    // holds the existence of a down payment.
-    setDownPayment(false);
+// function cdcCLI($argv = [])
+// {
+//     // number of payments.
+//     $np = 0;
+//     // interest rate
+//     $t = 0;
+//     // initial price
+//     $pv = 0;
+//     // final price
+//     $pp = 0;
+//     // debugging state.
+//     $debug = false;
+//     // holds the existence of a down payment.
+//     setDownPayment(false);
 
-    $pt = [
-        'precision' => 4,
-    ];
+//     $pt = [
+//         'precision' => 4,
+//     ];
 
-    // Certifique-se de que o namespace do Symfony\Component\Console\Application está devidamente importado.
-    use Symfony\Component\Console\Application;
-    use Symfony\Component\Console\Input\ArgvInput;
+//     // Certifique-se de que o namespace do Symfony\Component\Console\Application está devidamente importado.
+//     use Symfony\Component\Console\Application;
+//     use Symfony\Component\Console\Input\ArgvInput;
 
-    // Substitua $console->run(); por $console->run(new ArgvInput());
-    $mod_getopt = require __DIR__ . '/vendor/autoload.php';
-    $console = new Application();
-    $console->run(new ArgvInput());
+//     // Substitua $console->run(); por $console->run(new ArgvInput());
+//     $mod_getopt = require __DIR__ . '/vendor/autoload.php';
+//     $console = new Application();
+//     $console->run(new ArgvInput());
 
-    // Corrija o uso do namespace e classe Getopt
-    $parser = new $mod_getopt\Getopt(
-        [
-            ['h', 'help', $mod_getopt\Getopt::NO_ARGUMENT],
-            ['n', 'parcelas', $mod_getopt\Getopt::REQUIRED_ARGUMENT],
-            ['t', 'taxa', $mod_getopt\Getopt::REQUIRED_ARGUMENT],
-            ['x', 'valorP', $mod_getopt\Getopt::REQUIRED_ARGUMENT],
-            ['y', 'valorV', $mod_getopt\Getopt::REQUIRED_ARGUMENT],
-            ['v', 'verbose', $mod_getopt\Getopt::NO_ARGUMENT],
-            ['e', 'entrada', $mod_getopt\Getopt::NO_ARGUMENT],
-        ],
-        $argv
-    );
+//     // Corrija o uso do namespace e classe Getopt
+//     $parser = new $mod_getopt\Getopt(
+//         [
+//             ['h', 'help', $mod_getopt\Getopt::NO_ARGUMENT],
+//             ['n', 'parcelas', $mod_getopt\Getopt::REQUIRED_ARGUMENT],
+//             ['t', 'taxa', $mod_getopt\Getopt::REQUIRED_ARGUMENT],
+//             ['x', 'valorP', $mod_getopt\Getopt::REQUIRED_ARGUMENT],
+//             ['y', 'valorV', $mod_getopt\Getopt::REQUIRED_ARGUMENT],
+//             ['v', 'verbose', $mod_getopt\Getopt::NO_ARGUMENT],
+//             ['e', 'entrada', $mod_getopt\Getopt::NO_ARGUMENT],
+//         ],
+//         $argv
+//     );
 
 
-    foreach ($parser->getOptions() as $option) {
-        switch ($option[0]) {
-            case 'h':
-                log(
-                    "Usage " . parse($argv[0]) . " " . parse(
-                        $argv[1]
-                    ) . " -n <nº parcelas> -t <taxa> -x <valor a prazo> -y <valor à vista> -e -v"
-                );
-                return 1;
-            case 'n':
-                $np = (int)$option[1];
-                break;
-            case 't':
-                $t = (float)$option[1] / 100.0;
-                break;
-            case 'x':
-                $pp = (float)$option[1];
-                break;
-            case 'y':
-                $pv = (float)$option[1];
-                break;
-            case 'v':
-                $debug = true;
-                break;
-            case 'e':
-                setDownPayment();
-                break;
-        }
-    }
+//     foreach ($parser->getOptions() as $option) {
+//         switch ($option[0]) {
+//             case 'h':
+//                 log(
+//                     "Usage " . parse($argv[0]) . " " . parse(
+//                         $argv[1]
+//                     ) . " -n <nº parcelas> -t <taxa> -x <valor a prazo> -y <valor à vista> -e -v"
+//                 );
+//                 return 1;
+//             case 'n':
+//                 $np = (int)$option[1];
+//                 break;
+//             case 't':
+//                 $t = (float)$option[1] / 100.0;
+//                 break;
+//             case 'x':
+//                 $pp = (float)$option[1];
+//                 break;
+//             case 'y':
+//                 $pv = (float)$option[1];
+//                 break;
+//             case 'v':
+//                 $debug = true;
+//                 break;
+//             case 'e':
+//                 setDownPayment();
+//                 break;
+//         }
+//     }
 
-    while (
-        $np <= 2 ||
-        ($pv <= 0 && $pp <= 0) ||
-        ($t <= 0 && $pp <= 0) ||
-        ($t <= 0 && $pv <= 0) ||
-        $pp < $pv
-    ) {
-        try {
-            $np = (int)readlineSync::question("Forneça o número de parcelas: ");
-            $t = (float)readlineSync::question("Forneça a taxa de juros: ") / 100.0;
-            $pp = (float)readlineSync::question("Forneça o preço a prazo: ");
-            $pv = (float)readlineSync::question("Forneça o preço à vista: ");
-            if (isNaN($np) || isNaN($t) || isNaN($pp) || isNaN($pv)) {
-                throw new Exception("Value is not a Number");
-            }
-        } catch (Exception $err) {
-            log($err->getMessage());
-            rational_discount(10, 0.01, 500, 450, $debug);
-            return;
-        }
-    }
+//     while (
+//         $np <= 2 ||
+//         ($pv <= 0 && $pp <= 0) ||
+//         ($t <= 0 && $pp <= 0) ||
+//         ($t <= 0 && $pv <= 0) ||
+//         $pp < $pv
+//     ) {
+//         try {
+//             $np = (int)readlineSync::question("Forneça o número de parcelas: ");
+//             $t = (float)readlineSync::question("Forneça a taxa de juros: ") / 100.0;
+//             $pp = (float)readlineSync::question("Forneça o preço a prazo: ");
+//             $pv = (float)readlineSync::question("Forneça o preço à vista: ");
+//             if (isNaN($np) || isNaN($t) || isNaN($pp) || isNaN($pv)) {
+//                 throw new Exception("Value is not a Number");
+//             }
+//         } catch (Exception $err) {
+//             log($err->getMessage());
+//             rational_discount(10, 0.01, 500, 450, $debug);
+//             return;
+//         }
+//     }
 
-    if ($t > 0) {
-        if ($pp <= 0) {
-            [$factor, $pp] = futureValue($pv, $np, $t);
-        }
-    } else {
-        $ni = 0;
-        $pmt = $pp / $np;
-        try {
-            if ($pmt >= $pv) {
-                throw new Exception(
-                    "Prestação (\$" . $pmt->toFixed(2) . ") é maior do que o empréstimo"
-                );
-            }
-            // getInterest takes in considerarion any down payment
-            [$t, $ni] = getInterest($pp, $pv, $np);
-        } catch (Exception $e) {
-            log($e->getMessage());
-            return;
-        }
-        log("Taxa = " . $t->toFixed(4) . "% - " . $ni . " iterações" . crlf);
-        $t *= 0.01;
-    }
+//     if ($t > 0) {
+//         if ($pp <= 0) {
+//             [$factor, $pp] = futureValue($pv, $np, $t);
+//         }
+//     } else {
+//         $ni = 0;
+//         $pmt = $pp / $np;
+//         try {
+//             if ($pmt >= $pv) {
+//                 throw new Exception(
+//                     "Prestação (\$" . $pmt->toFixed(2) . ") é maior do que o empréstimo"
+//                 );
+//             }
+//             // getInterest takes in considerarion any down payment
+//             [$t, $ni] = getInterest($pp, $pv, $np);
+//         } catch (Exception $e) {
+//             log($e->getMessage());
+//             return;
+//         }
+//         log("Taxa = " . $t->toFixed(4) . "% - " . $ni . " iterações" . crlf);
+//         $t *= 0.01;
+//     }
 
-    // with or without any down payment
-    $cf = CF($t, $np);
-    $pmt = $pv * $cf;
-    if ($pmt >= $pv) {
-        rational.log(
-            "Prestação (\$" . $pmt->toFixed(2) . ") é maior do que o empréstimo"
-        );
-    }
-    log("Coeficiente de Financiamento: " . $cf->toFixed(6));
+//     // with or without any down payment
+//     $cf = CF($t, $np);
+//     $pmt = $pv * $cf;
+//     if ($pmt >= $pv) {
+//         rational.log(
+//             "Prestação (\$" . $pmt->toFixed(2) . ") é maior do que o empréstimo"
+//         );
+//     }
+//     log("Coeficiente de Financiamento: " . $cf->toFixed(6));
 
-    $dp = getDownPayment();
-    if ($dp) {
-        $pmt /= 1 + $t;
-        $np -= 1; // uma prestação a menos
-        $pv -= $pmt; // preço à vista menos a entrada
-        $pp -= $pmt; // preço a prazo menos a entrada
-        log("Entrada: " . $pmt->toFixed(2));
-        log(
-            "Valor financiado = \$" . ($pv + $pmt)->toFixed(2) . " - \$" . $pmt->toFixed(
-                2
-            ) . " = \$" . $pv->toFixed(2)
-        );
-        // the values were set here to work without down payment
-        // otherwise, rational_discount will produce a misleading interest rate
-        setDownPayment(false);
-    }
+//     $dp = getDownPayment();
+//     if ($dp) {
+//         $pmt /= 1 + $t;
+//         $np -= 1; // uma prestação a menos
+//         $pv -= $pmt; // preço à vista menos a entrada
+//         $pp -= $pmt; // preço a prazo menos a entrada
+//         log("Entrada: " . $pmt->toFixed(2));
+//         log(
+//             "Valor financiado = \$" . ($pv + $pmt)->toFixed(2) . " - \$" . $pmt->toFixed(
+//                 2
+//             ) . " = \$" . $pv->toFixed(2)
+//         );
+//         // the values were set here to work without down payment
+//         // otherwise, rational_discount will produce a misleading interest rate
+//         setDownPayment(false);
+//     }
 
-    log("Prestação: \$" . $pmt->toFixed(2) . crlf);
+//     log("Prestação: \$" . $pmt->toFixed(2) . crlf);
 
-    $output = $result->slice() . rational_discount($np, $t, $pp, $pv, $debug);
-    $result = "";
-    $output = $output->slice(
-        0,
-        $output->indexOf(crlf . "                         Tabela Price")
-    );
+//     $output = $result->slice() . rational_discount($np, $t, $pp, $pv, $debug);
+//     $result = "";
+//     $output = $output->slice(
+//         0,
+//         $output->indexOf(crlf . "                         Tabela Price")
+//     );
 
-    // Tabela Price
-    if ($debug) {
-        setDownPayment($dp);
-        log(nodePriceTable(priceTable($np, $pv, $t, $pmt)));
-        $output .= $result;
-    }
-    echo $output->split(crlf)->join("\n");
-}
+//     // Tabela Price
+//     if ($debug) {
+//         setDownPayment($dp);
+//         log(nodePriceTable(priceTable($np, $pv, $t, $pmt)));
+//         $output .= $result;
+//     }
+//     echo $output->split(crlf)->join("\n");
+// }
 
 ?>
