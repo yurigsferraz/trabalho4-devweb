@@ -142,9 +142,9 @@ function printPage(string $leftBoxContent, string $rightBoxContent, string $tabe
 
         #result-container {
             display: flex;
-            flex-direction: column;
+            flex-direction: row-reverse;
             align-items: center;
-            justify-content: center;
+            justify-content: space-around;
         }
 
         #summary-container {
@@ -152,6 +152,7 @@ function printPage(string $leftBoxContent, string $rightBoxContent, string $tabe
             flex-wrap: wrap;
             justify-content: space-around;
             margin-top: 20px;
+            flex-direction: column;
         }
 
         #left-box,
