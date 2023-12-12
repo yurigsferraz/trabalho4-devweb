@@ -21,15 +21,16 @@
             class="draggable ui-widget-content"
             style="
                 border: 1px black solid;
-                background-color: #cac3ba;
+                background-color: #3a3a3a;
                 width: 400px;
             "
         >
             <legend
                 style="
-                    border: 5px lightblue solid;
+                    border: 5px #3f1999;
+                    border-radius: 10px;
                     margin-left: 1em;
-                    background-color: #ff6347;
+                    background-color: #3f1999;
                     padding: 0.2em 0.8em;
                 "
             >
@@ -52,7 +53,7 @@
                         max="72000"
                         step="1"
                         required
-                    />meses<br />
+                    /><span style="color: white;">meses</span><br />
 
                     <span class="input-group-addon" style="color: antiquewhite"
                         >$</span
@@ -68,9 +69,9 @@
                         max="100.0"
                         step="any"
                         required
-                    />% mês<br />
+                    /><span style="color: white;">% mês</span><br />
 
-                    <span class="input-group-addon">$</span>
+                    <span class="input-group-addon" style="color: white;">$</span>
                     <label for="ipv">Valor Financiado[Vista]: </label>
                     <input
                         id="ipv"
@@ -83,7 +84,7 @@
                         required
                     /><br />
 
-                    <span class="input-group-addon">$</span>
+                    <span class="input-group-addon" style="color: white;">$</span>
                     <label for="ipp">Valor Final(opcional):</label>
                     <input
                         id="ipp"
@@ -96,7 +97,7 @@
                         required
                     /><br />
 
-                    <span class="input-group-addon">$</span>
+                    <span class="input-group-addon" style="color: white;">$</span>
                     <label for="ipb">Meses a Voltar(opcional):</label>
                     <input
                         id="ipb"
@@ -120,10 +121,8 @@
                 </div>
                 <div class="messages">
                     
-                  
                     <input type="submit" name="submit" id="submitButton" class="button" type="button" value="Calcular" style="display: block;" />
 
-                    <p><a href="https://github.com/Socrates-Freitas/TabelaPricePHP" target="_blank">Github</a></p>
                 </div>
             </form>
 
