@@ -156,11 +156,20 @@ function printPage(string $leftBoxContent, string $rightBoxContent, string $tabe
 
         #left-box,
         #right-box {
-            min-width: 10%;
-            border-style: dotted;
+            min-width: 40%; 
+            border-style: solid;
             padding: 20px;
             margin-bottom: 30px;
             border-radius: 10px;
+        }
+
+        #left-box {
+            float: left;
+            margin-right: 20px;
+        }
+
+        #right-box {
+            float: left;
         }
 
         #left-box p,
