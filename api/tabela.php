@@ -5,21 +5,22 @@ require 'cdc.php';
 
 // Aqui vai ter a parte da pagina da tabela price
 
-function getLeftBoxHTMLText(float $precoAVista,float $precoAPrazo,int $numParcelas,float $taxaDeJuros,bool $temEntrada,int $mesesAVoltar):string{
-    $precoAprazoTemp = numberToFixed((float) $precoAPrazo,2);
-    $precoAVistaTemp = numberToFixed((float) $precoAVista,2);
+function getLeftBoxHTMLText(float $precoAVista, float $precoAPrazo, int $numParcelas, float $taxaDeJuros, bool $temEntrada, int $mesesAVoltar): string
+{
+    $precoAprazoTemp = numberToFixed((float) $precoAPrazo, 2);
+    $precoAVistaTemp = numberToFixed((float) $precoAVista, 2);
     $numParcelasTemp = (int) $numParcelas;
     $mesesAVoltarTemp = (int) $mesesAVoltar;
-    $taxaDeJurosTemp = numberToFixed((float) $taxaDeJuros,4);
+    $taxaDeJurosTemp = numberToFixed((float) $taxaDeJuros, 4);
     $taxaDeJurosAnual = converterJurosMensalParaAnual($taxaDeJuros);
 
     //    let jurosReal = calcularTaxaDeJuros(precoAVista,precoAPrazo,numParcelas,temEntrada) * 100;
-    $coeficienteFinanciamento = calcularCoeficienteFinanciamento($taxaDeJuros,$numParcelas);
+    $coeficienteFinanciamento = calcularCoeficienteFinanciamento($taxaDeJuros, $numParcelas);
 
-    $pmt = numberToFixed(calcularPMT($precoAVista,$coeficienteFinanciamento), 2);
-    $valorAVoltar = numberToFixed(calcularValorAVoltar($pmt,$numParcelasTemp,$mesesAVoltarTemp), 2);
+    $pmt = numberToFixed(calcularPMT($precoAVista, $coeficienteFinanciamento), 2);
+    $valorAVoltar = numberToFixed(calcularValorAVoltar($pmt, $numParcelasTemp, $mesesAVoltarTemp), 2);
 
-    $textoParcelamento = $temEntrada ? " (+ 1)": "";
+    $textoParcelamento = $temEntrada ? " (+ 1)" : "";
     $textoTemEntrada = $temEntrada ? "Sim" : "Não";
 
     $taxaDeJurosTemp *= 100;
@@ -32,31 +33,32 @@ function getLeftBoxHTMLText(float $precoAVista,float $precoAPrazo,int $numParcel
     <p><b>Entrada:</b> {$textoTemEntrada} </p> ";
 }
 
-function getRightBoxHTMLText(float $precoAVista,float $precoAPrazo,int $numParcelas,float $taxaDeJuros,bool $temEntrada,float $valorCorrigido):string{
+function getRightBoxHTMLText(float $precoAVista, float $precoAPrazo, int $numParcelas, float $taxaDeJuros, bool $temEntrada, float $valorCorrigido): string
+{
 
     $jurosReal = 0;
 
-    $precoAprazoTemp = numberToFixed((float) $precoAPrazo,2);
-    $precoAVistaTemp = numberToFixed((float) $precoAVista,2);
+    $precoAprazoTemp = numberToFixed((float) $precoAPrazo, 2);
+    $precoAVistaTemp = numberToFixed((float) $precoAVista, 2);
     $numParcelasTemp = (int) $numParcelas;
 
     //numParcelas = (!temEntrada)? numParcelas: numParcelas + 1;
 
-    $jurosReal = calcularTaxaDeJuros($precoAVista,$precoAPrazo, $numParcelas,$temEntrada) * 100;
+    $jurosReal = calcularTaxaDeJuros($precoAVista, $precoAPrazo, $numParcelas, $temEntrada) * 100;
 
-    
-    $coeficienteFinanciamento = calcularCoeficienteFinanciamento($taxaDeJuros,$numParcelas);
 
-    $jurosReal = numberToFixed($jurosReal,4);
- 
-    $pmt = toFixed(calcularPMT($precoAVista,$coeficienteFinanciamento),2);
- 
+    $coeficienteFinanciamento = calcularCoeficienteFinanciamento($taxaDeJuros, $numParcelas);
+
+    $jurosReal = numberToFixed($jurosReal, 4);
+
+    $pmt = toFixed(calcularPMT($precoAVista, $coeficienteFinanciamento), 2);
+
     $jurosEmbutido = (($precoAPrazo - $precoAVista) / $precoAVista) * 100;
-    $jurosEmbutido = numberToFixed($jurosEmbutido,2);
+    $jurosEmbutido = numberToFixed($jurosEmbutido, 2);
     $desconto = (($precoAPrazo - $precoAVista) / $precoAPrazo) * 100;
-    $desconto = numberToFixed($desconto,2);
-    $fatorAplicado = toFixed(calcularFatorAplicado($temEntrada,$numParcelas,$coeficienteFinanciamento,$taxaDeJuros),6);
-    $coeficienteFinanciamento = numberToFixed($coeficienteFinanciamento,6);
+    $desconto = numberToFixed($desconto, 2);
+    $fatorAplicado = toFixed(calcularFatorAplicado($temEntrada, $numParcelas, $coeficienteFinanciamento, $taxaDeJuros), 6);
+    $coeficienteFinanciamento = numberToFixed($coeficienteFinanciamento, 6);
     return "
     <p><b>Prestação:</b> $ {$pmt}</p>
     <p> <b>Taxa Real:</b>  {$jurosReal}%</p>
@@ -69,142 +71,157 @@ function getRightBoxHTMLText(float $precoAVista,float $precoAPrazo,int $numParce
 }
 
 
-function getTabelaPriceHTMLText(array $tabelaPrice):string{
+function getTabelaPriceHTMLText(array $tabelaPrice): string
+{
 
     $table = "";
 
-    for($i = 0; $i < count($tabelaPrice); $i++){
+    for ($i = 0; $i < count($tabelaPrice); $i++) {
 
-       if($i == 0){
-           $table .= "<thead><tr>";
+        if ($i == 0) {
+            $table .= "<thead><tr>";
 
-            foreach($tabelaPrice[$i] as $itemTabela){
-                $table .= "<th> {$itemTabela} </th>"; 
+            foreach ($tabelaPrice[$i] as $itemTabela) {
+                $table .= "<th> {$itemTabela} </th>";
             }
 
-         
+
             $table .= "</tr></thead>";
-       }
+        } else {
 
-       else{
+            $table .= "<tr>";
+            foreach ($tabelaPrice[$i] as $itemTabelaa) {
 
-           $table .= "<tr>";
-           foreach($tabelaPrice[$i] as $itemTabelaa){
+                // Coloca Negrito se for último elemento (Totais)
+                if ($i == count($tabelaPrice) - 1) {
+                    $table .= "<td> <b>  $itemTabelaa   </b> </td>";
+                } else {
+                    $table .= "<td>  $itemTabelaa </td>";
+                }
 
-            // Coloca Negrito se for último elemento (Totais)
-            if($i == count($tabelaPrice) - 1){
-               $table .= "<td> <b>  $itemTabelaa   </b> </td>";
             }
-            else{
-                $table .= "<td>  $itemTabelaa </td>";
-            }
-
-           }
-
- 
-           $table .= "</tr>";
-       }
-       
-   }
 
 
-   return $table;
+            $table .= "</tr>";
+        }
+
+    }
+
+
+    return $table;
 }
 
 
 
-function printPage(string $leftBoxContent,string $rightBoxContent,string $tabelaPriceContent):void{
+function printPage(string $leftBoxContent, string $rightBoxContent, string $tabelaPriceContent): void
+{
     $finalText = <<<HTML
-    
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <title>CDC</title>
-            <meta charset="utf8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-            <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-            <link
-                rel="stylesheet"
-                href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css"
-            />
-            <script src="js-webshim/minified/polyfiller.js"></script>
-            
-            <style>
-                
-                    #table-content table, th, td{
-                        border: 1px solid black;
-                        font-size: 20px;
-                        padding: 5px;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CDC</title>
+    <meta charset="utf8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link
+        rel="stylesheet"
+        href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css"
+    />
+    <script src="js-webshim/minified/polyfiller.js"></script>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #fff;
+            margin: 0;
+            padding: 2em;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont,
+                "Segoe UI", "Open Sans", "Helvetica Neue", Helvetica, Arial,
+                sans-serif;
+        }
 
-                        text-align: center;
+        #result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-                    }
+        #summary-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
 
+        #left-box,
+        #right-box {
+            min-width: 10%;
+            border-style: dotted;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
 
+        #left-box p,
+        #right-box p {
+            font-size: 16px;
+            color: #fff;
+            margin: 5px 0;
+        }
 
-                    #left-box, #right-box{
-                        min-width: 10%;
-                        border-style: dotted;
-                        padding: 20px;
-                        margin-bottom: 30px;
-                        border-radius: 10px;
-                    }
+        #table-container {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
 
-                    #summary-container{
-                        display: flex;
-                        flex-wrap: wrap;
-                        justify-content: space-around;
+        #table-content {
+            border-collapse: collapse;
+            width: 80%;
+            margin-top: 20px;
+        }
 
-                        margin-top: 20px;
-                    }
+        #table-content,
+        th,
+        td {
+            border: 1px solid #555;
+            font-size: 16px;
+            padding: 10px;
+            text-align: center;
+        }
 
-                    #table-container{
-                        margin-top: 30px;
-                        display: flex;
-                        flex-wrap: wrap;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                    }
-                    
-            </style>
-    </head>
-    <body>
-        <div id="result-container">
-                    
-                <div id="summary-container">
-
-                    <div id="left-box">
-                        {$leftBoxContent}
-                    </div>
-
-                    <div id="right-box">
-                        {$rightBoxContent}
-                    </div>
-                    
-                </div>
-
-                <div id="table-container">
-                
-                    <h1>Tabela Price</h1>
-                    
-                    <table id="table-content">
-                        {$tabelaPriceContent}
-                    </table>
-                </div>
-
-
-                
+        h1 {
+            color: #BB86FC;
+        }
+    </style>
+</head>
+<body>
+    <div id="result-container">
+        <div id="summary-container">
+            <div id="left-box">
+                {$leftBoxContent}
             </div>
-        
-        </body>
-        </html>
-    HTML;
-
+            <div id="right-box">
+                {$rightBoxContent}
+            </div>
+        </div>
+        <div id="table-container">
+            <h1>Tabela Price</h1>
+            <table id="table-content">
+                {$tabelaPriceContent}
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+HTML;
 
     echo $finalText;
-
 }
 
 
@@ -235,41 +252,41 @@ $coeficienteFinanciamento;
 $pmt;
 
 
-if($juros != 0 && $valorFinal == 0){
+if ($juros != 0 && $valorFinal == 0) {
     $juros /= 100;
 
-}else{
-    $juros = calcularTaxaDeJuros($valorFinanciado,$valorFinal,$numeroParcelas,$temEntrada);
+} else {
+    $juros = calcularTaxaDeJuros($valorFinanciado, $valorFinal, $numeroParcelas, $temEntrada);
 }
 
 
 $coeficienteFinanciamento = calcularCoeficienteFinanciamento($juros, $numeroParcelas);
 
-if( $valorFinal == 0){
-    $valorFinal = calcularValorFuturo($coeficienteFinanciamento,$juros,$valorFinanciado,$numeroParcelas,$temEntrada);
-} 
-$pmt = calcularPMT($valorFinanciado,$coeficienteFinanciamento);
+if ($valorFinal == 0) {
+    $valorFinal = calcularValorFuturo($coeficienteFinanciamento, $juros, $valorFinanciado, $numeroParcelas, $temEntrada);
+}
+$pmt = calcularPMT($valorFinanciado, $coeficienteFinanciamento);
 
-if($temEntrada){
+if ($temEntrada) {
     $pmt /= 1 + $juros;
     $numeroParcelas--;
     $valorFinanciado -= $pmt;
 
-    
+
 }
 
-$tabelaPrice = getTabelaPrice($valorFinanciado,$pmt,$numeroParcelas,$juros,$temEntrada);
+$tabelaPrice = getTabelaPrice($valorFinanciado, $pmt, $numeroParcelas, $juros, $temEntrada);
 
-$valorCorrigido = getValorCorrigido($tabelaPrice,$numeroParcelas,$mesesAVoltar);
+$valorCorrigido = getValorCorrigido($tabelaPrice, $numeroParcelas, $mesesAVoltar);
 
-$tabelaPriceText =  getTabelaPriceHTMLText($tabelaPrice);
+$tabelaPriceText = getTabelaPriceHTMLText($tabelaPrice);
 
-$leftBoxText = getLeftBoxHTMLText($valorFinanciado,$valorFinal,$numeroParcelas,$juros,$temEntrada, $mesesAVoltar);
-$rightBoxText = getRightBoxHTMLText($valorFinanciado,$valorFinal,$numeroParcelas,$juros,$temEntrada, $valorCorrigido);
+$leftBoxText = getLeftBoxHTMLText($valorFinanciado, $valorFinal, $numeroParcelas, $juros, $temEntrada, $mesesAVoltar);
+$rightBoxText = getRightBoxHTMLText($valorFinanciado, $valorFinal, $numeroParcelas, $juros, $temEntrada, $valorCorrigido);
 
 
 
-printPage($leftBoxText,$rightBoxText,$tabelaPriceText);
+printPage($leftBoxText, $rightBoxText, $tabelaPriceText);
 
 // if(imprimir){
 //     imprimirResultado();
